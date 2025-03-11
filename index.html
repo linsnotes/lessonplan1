@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson Plan Prompt Generator</title>
+    <style>
+        /* Apple-inspired styling */
+        :root {
+            --background-color: #f5f7fa;
+            --card-background: #ffffff;
+            --primary-color: #007aff;
+            --primary-hover: #0064d2;
+            --secondary-color: #34c759;
+            --secondary-hover: #30b650;
+            --text-color: #333333;
+            --light-text: #737373;
+            --border-color: #e4e4e4;
+            --shadow-color: rgba(0, 0, 0, 0.05);
+            --section-bg: #f9f9f9;
+            --focus-ring: rgba(0, 122, 255, 0.2);
+            --tooltip-bg: rgba(0, 0, 0, 0.8);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            padding: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--card-background);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px var(--shadow-color);
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 28px;
+            margin-bottom: 24px;
+            letter-spacing: -0.5px;
+        }
+
+        .section {
+            margin-bottom: 24px;
+            padding: 20px;
+            background-color: var(--section-bg);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px var(--shadow-color);
+            transition: all 0.2s ease;
+        }
+
+        .section:hover {
+            box-shadow: 0 4px 12px var(--shadow-color);
+        }
+
+        .section-title {
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-color);
+            font-size: 18px;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+        }
+
+        label {
+            display: block;
+            margin: 12px 0 6px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background-color: var(--card-background);
+            font-family: inherit;
+            color: var(--text-color);
+            transition: all 0.2s ease;
+            -webkit-appearance: none;
+            appearance: none;
+            box-shadow: 0 1px 3px var(--shadow-color);
+        }
+
+        input[type="text"]:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px var(--focus-ring);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        #instruction {
+            min-height: 180px;
+        }
+
+        .output-textarea {
+            width: 100%;
+            min-height: 300px;
+            max-height: 600px;
+            margin-top: 16px;
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background-color: var(--card-background);
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--text-color);
+            resize: vertical;
+            box-shadow: 0 1px 3px var(--shadow-color);
+        }
+
+        select {
+            background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='24' height='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 16l-6-6h12z' fill='%23777'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            padding-right: 32px;
+        }
+
+        /* Container for checkboxes */
+        #skills-container, #pedagogy-container, #technology-container {
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 10px;
+            background-color: var(--card-background);
+            box-shadow: 0 1px 3px var(--shadow-color);
+        }
+
+        /* Checkbox styling */
+        .skill-item, .pedagogy-item, .technology-item {
+            margin-bottom: 10px;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        input[type="checkbox"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            border: 2px solid var(--border-color);
+            background-color: var(--card-background);
+            margin-right: 8px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        input[type="checkbox"]:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        input[type="checkbox"]:checked::after {
+            content: '';
+            position: absolute;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+            left: 7px;
+            top: 3px;
+        }
+
+        input[type="checkbox"]:focus {
+            outline: none;
+            box-shadow: 0 0 0 4px var(--focus-ring);
+        }
+
+        .skill-item label, .pedagogy-item label, .technology-item label {
+            display: inline;
+            margin-left: 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* Button styling */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin: 24px 0;
+            gap: 12px;
+        }
+
+        button {
+            padding: 12px 24px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0, 122, 255, 0.3);
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 122, 255, 0.4);
+        }
+
+        button:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 3px rgba(0, 122, 255, 0.4);
+        }
+
+        #copy-button {
+            background-color: var(--secondary-color);
+            box-shadow: 0 2px 6px rgba(52, 199, 89, 0.3);
+        }
+
+        #copy-button:hover {
+            background-color: var(--secondary-hover);
+            box-shadow: 0 4px 8px rgba(52, 199, 89, 0.4);
+        }
+
+        #copy-button:active {
+            box-shadow: 0 1px 3px rgba(52, 199, 89, 0.4);
+        }
+
+        /* Tooltip styling */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 250px;
+            background-color: var(--tooltip-bg);
+            color: #fff;
+            text-align: left;
+            border-radius: 8px;
+            padding: 10px;
+            position: absolute;
+            z-index: 10;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -125px;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            transform: translateY(10px);
+            font-size: 12px;
+            line-height: 1.4;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Required field indicator */
+        .required-field::after {
+            content: " *";
+            color: #ff3b30;
+            font-weight: bold;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+                border-radius: 12px;
+            }
+
+            .section {
+                padding: 16px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            input[type="text"], textarea, select, .output-textarea {
+                font-size: 16px;
+                padding: 10px;
+            }
+
+            button {
+                width: 100%;
+                padding: 14px;
+            }
+
+            .button-container {
+                flex-direction: column;
+            }
+
+            /* Adjust tooltip for mobile */
+            .tooltip .tooltiptext {
+                width: 200px;
+                margin-left: -100px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+            }
+
+            .container {
+                padding: 12px;
+            }
+
+            .section {
+                padding: 12px;
+                margin-bottom: 16px;
+            }
+
+            h1 {
+                font-size: 22px;
+                margin-bottom: 16px;
+            }
+
+            .section-title {
+                font-size: 16px;
+            }
+
+            label {
+                font-size: 14px;
+            }
+
+            /* Adjust tooltip for small mobile */
+            .tooltip .tooltiptext {
+                width: 180px;
+                margin-left: -90px;
+                font-size: 11px;
+            }
+        }
+
+        /* Enhance scrolling for mobile */
+        @supports (-webkit-touch-callout: none) {
+            #skills-container, #pedagogy-container, #technology-container {
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Lesson Plan Prompt Generator</h1>
+        
+        <!-- Task Section -->
+        <div class="section">
+            <div class="section-title">Task</div>
+            <label for="role" id="role-label">Role - You must act as an expert teacher teaching in</label>
+            <input type="text" id="role" value="Singapore" placeholder="Enter teaching location e.g. Singapore">
+            <label for="command">Command</label>
+            <textarea id="command" placeholder="Enter command">I will provide you with details about my lesson, and your job will be to think critically and write a detailed lesson plan. I want you to design a lesson in which students make sense of information and knowledge to achieve deep understanding by interacting with the content, their peers, or their teachers, and by reflecting on their learning. Feel free to ask me any questions you need to ensure a well-designed lesson plan.</textarea>
+        </div>
+        
+        <!-- Instruction Section -->
+        <div class="section">
+            <div class="section-title">Instruction</div>
+            <label for="instruction">Output Format, Qualities of Output, and Do's & Don'ts</label>
+            <textarea id="instruction" placeholder="Enter instructions for output format, qualities of output, do's and don'ts">Organise the information in a table with four columns:
+
+Column 1: Duration
+Column 2: Name of the four categories: Activate Learning, Promote Thinking and Discussion, Facilitate Demonstration of Learning, and Monitor and Provide Feedback.
+Column 3: A detailed description of activities and questions that promote students' critical thinking according to the four categories in Column 2.
+Column 4: Justification for choosing those activities and questions.
+The lesson plan should be simple yet detailed enough for any teacher to understand and implement. Do not start designing the lesson until I provide the context.</textarea>
+        </div>
+        
+        <!-- Context Section -->
+        <div class="section">
+            <div class="section-title">Context</div>
+            <div class="context-fields">
+                <label for="subject" id="subject-label">Subject</label>
+                <input type="text" id="subject" placeholder="Enter subject">
+
+                <label for="topic" id="topic-label">Topic</label>
+                <input type="text" id="topic" placeholder="Enter topic">
+
+                <label for="grade" id="grade-label">Level</label>
+                <select id="grade">
+                    <option value="">Select level</option>
+                    <option value="Primary 1">Primary 1</option>
+                    <option value="Primary 2">Primary 2</option>
+                    <option value="Primary 3">Primary 3</option>
+                    <option value="Primary 4">Primary 4</option>
+                    <option value="Primary 5">Primary 5</option>
+                    <option value="Primary 6">Primary 6</option>
+                    <option value="Secondary 1">Secondary 1</option>
+                    <option value="Secondary 2">Secondary 2</option>
+                    <option value="Secondary 3">Secondary 3</option>
+                    <option value="Secondary 4">Secondary 4</option>
+                    <option value="Junior College 1">Junior College 1</option>
+                    <option value="Junior College 2">Junior College 2</option>
+                </select>
+
+                <label for="class-size" id="class-size-label">Class Size</label>
+                <input type="text" id="class-size" placeholder="Enter class size">
+
+                <label for="abilities" id="abilities-label">Students Abilities</label>
+                <select id="abilities">
+                    <option value="">Select student abilities</option>
+                    <option value="High Ability">High Ability</option>
+                    <option value="Medium Ability">Medium Ability</option>
+                    <option value="Low Ability">Low Ability</option>
+                    <option value="Mixed Abilities">Mixed Abilities</option>
+                </select>
+
+                <label for="duration" id="duration-label">Lesson Duration</label>
+                <input type="text" id="duration" placeholder="Enter lesson duration">
+
+                <label for="learning-outcomes" id="learning-outcomes-label">Learning Outcomes</label>
+                <input type="text" id="learning-outcomes" placeholder="Enter learning outcomes">
+
+                <label for="end-abilities" id="end-abilities-label">At the end of the lesson, students will be able to</label>
+                <input type="text" id="end-abilities" placeholder="Enter end abilities">
+
+                <label for="pedagogy" id="pedagogy-label">Pedagogy</label>
+                <div id="pedagogy-container">
+                    <div class="pedagogy-item">
+                        <input type="checkbox" id="pedagogy-1" name="pedagogy" value="Acquisition">
+                        <label for="pedagogy-1" class="tooltip">Acquisition
+                            <span class="tooltiptext">students will learn new knowledge through studying, analysing, comparing, organising curated information to identify structures and patterns to deepen understanding of concepts.</span>
+                        </label>
+                    </div>
+                    <div class="pedagogy-item">
+                        <input type="checkbox" id="pedagogy-2" name="pedagogy" value="Inquiry">
+                        <label for="pedagogy-2" class="tooltip">Inquiry
+                            <span class="tooltiptext">students will form an informed prediction to an inquiry task. They will investigate by exploring, clarifying and analysing information sources and data. They will formulate an explanation based on evidence and evaluate and reflect on their findings and new learning.</span>
+                        </label>
+                    </div>
+                    <div class="pedagogy-item">
+                        <input type="checkbox" id="pedagogy-3" name="pedagogy" value="Discussion">
+                        <label for="pedagogy-3" class="tooltip">Discussion
+                            <span class="tooltiptext">students will generate and exchange ideas and perspectives, supported by evidence and explanations. They will engage in peer critique to refine understanding of their ideas.</span>
+                        </label>
+                    </div>
+                    <div class="pedagogy-item">
+                        <input type="checkbox" id="pedagogy-4" name="pedagogy" value="Collaboration">
+                        <label for="pedagogy-4" class="tooltip">Collaboration
+                            <span class="tooltiptext">students will plan and establish group goals and processes. They will collectively ideate, discuss, negotiate diverse ideas and co-construct meaning that contributes towards the production of a shared output.</span>
+                        </label>
+                    </div>
+                    <div class="pedagogy-item">
+                        <input type="checkbox" id="pedagogy-5" name="pedagogy" value="Practice">
+                        <label for="pedagogy-5" class="tooltip">Practice
+                            <span class="tooltiptext">students will perform a task which requires them to apply their understanding of concepts. Upon receiving feedback, they will reflect on the experience, adapt their conceptual understanding and revise their actions in a subsequent task.</span>
+                        </label>
+                    </div>
+                    <div class="pedagogy-item">
+                        <input type="checkbox" id="pedagogy-6" name="pedagogy" value="Production">
+                        <label for="pedagogy-6" class="tooltip">Production
+                            <span class="tooltiptext">students will produce artefacts that consolidate their learning by articulating their conceptual understanding, allowing me to assess and respond with extrinsic feedback, guidance and further explanation.</span>
+                        </label>
+                    </div>
+                </div>
+
+                <label for="technology" id="technology-label">Key Application of Technology (KAT)</label>
+                <div id="technology-container">
+                    <div class="technology-item">
+                        <input type="checkbox" id="technology-1" name="technology" value="Differentiation">
+                        <label for="technology-1" class="tooltip">Differentiation
+                            <span class="tooltiptext">allows me to harness the interactivity and multimodal features of digital tools to differentiate the nature of content, processes and products of learning to meet the needs of all students.</span>
+                        </label>
+                    </div>
+                    <div class="technology-item">
+                        <input type="checkbox" id="technology-2" name="technology" value="Learning Together">
+                        <label for="technology-2" class="tooltip">Learning Together
+                            <span class="tooltiptext">allows my students to collectively build on, improve, and synthesise ideas across time and space in dynamic groups, while providing support for group interactions throughout the learning process.</span>
+                        </label>
+                    </div>
+                    <div class="technology-item">
+                        <input type="checkbox" id="technology-3" name="technology" value="Metacognition">
+                        <label for="technology-3" class="tooltip">Metacognition
+                            <span class="tooltiptext">allows my students to make sense of and regulate their learning activities/processes and knowledge through provision of automated supports, and articulate their reflection through various modes.</span>
+                        </label>
+                    </div>
+                    <div class="technology-item">
+                        <input type="checkbox" id="technology-4" name="technology" value="Personalisation">
+                        <label for="technology-4" class="tooltip">Personalisation
+                            <span class="tooltiptext">allows me to harness non-linear, interactive and adaptive features of digital tools to give students choice in their learning goals, artefacts, processes and pace.</span>
+                        </label>
+                    </div>
+                    <div class="technology-item">
+                        <input type="checkbox" id="technology-5" name="technology" value="Scaffolding">
+                        <label for="technology-5" class="tooltip">Scaffolding
+                            <span class="tooltiptext">allows me to embed digital scaffolds to support thinking and guide interactions between students, teachers, and content.</span>
+                        </label>
+                    </div>
+                    <div class="technology-item">
+                        <input type="checkbox" id="technology-6" name="technology" value="Assessment for Learning">
+                        <label for="technology-6" class="tooltip">Assessment for Learning
+                            <span class="tooltiptext">allows me to capture, analyse, summarise and visualise learning data to provide students with targeted feedback and resources to move their learning forward.</span>
+                        </label>
+                    </div>
+                    <div class="technology-item">
+                        <input type="checkbox" id="technology-7" name="technology" value="Conceptual Change">
+                        <label for="technology-7" class="tooltip">Conceptual Change
+                            <span class="tooltiptext">allows my students to externalise their conceptual understanding, representing abstract concepts through various modes to help students identify critical features and patterns of the concept, make generalisations and refine their own understanding.</span>
+                        </label>
+                    </div>
+                    <div class="technology-item">
+                        <input type="checkbox" id="technology-8" name="technology" value="Motivation">
+                        <label for="technology-8" class="tooltip">Motivation
+                            <span class="tooltiptext">allows me to provide meaningful tasks, choice and support to encourage students to take ownership of and persist in their learning.</span>
+                        </label>
+                    </div>
+                </div>
+
+                <label for="skills" id="skills-label">21st Century Competencies</label>
+                <div id="skills-container">
+                    <div class="skill-item">
+                        <input type="checkbox" id="skill-1" name="skills" value="Communication">
+                        <label for="skill-1" class="tooltip">Communication
+                            <span class="tooltiptext">students convey information and exchange ideas clearly and coherently through multimodal ways for specific purposes, audiences and contexts.</span>
+                        </label>
+                    </div>
+                    <div class="skill-item">
+                        <input type="checkbox" id="skill-2" name="skills" value="Collaboration">
+                        <label for="skill-2" class="tooltip">Collaboration
+                            <span class="tooltiptext">students work together in a respectful manner to share responsibilities and make collective decisions to meet shared goals.</span>
+                        </label>
+                    </div>
+                    <div class="skill-item">
+                        <input type="checkbox" id="skill-3" name="skills" value="Information Skills">
+                        <label for="skill-3" class="tooltip">Information Skills
+                            <span class="tooltiptext">students source for, select, evaluate and synthesise digital and non-digital information with discernment. It also entails ethical and responsible practices when using, sharing and creating information.</span>
+                        </label>
+                    </div>
+                    <div class="skill-item">
+                        <input type="checkbox" id="skill-4" name="skills" value="Global Literacy">
+                        <label for="skill-4" class="tooltip">Global Literacy
+                            <span class="tooltiptext">students understand and think with discernment about world issues and interact responsibly and constructively with people from and beyond Singapore on such issues.</span>
+                        </label>
+                    </div>
+                    <div class="skill-item">
+                        <input type="checkbox" id="skill-5" name="skills" value="Cross-cultural Literacy">
+                        <label for="skill-5" class="tooltip">Cross-cultural Literacy
+                            <span class="tooltiptext">students sensitively understand, appreciate and interact with different social, cultural and religious communities and their perspectives.</span>
+                        </label>
+                    </div>
+                    <div class="skill-item">
+                        <input type="checkbox" id="skill-6" name="skills" value="Civic Literacy">
+                        <label for="skill-6" class="tooltip">Civic Literacy
+                            <span class="tooltiptext">students understand the nation's values, governance, context and realities, form one's civic identity, and constructively engage with and contribute to one's community and nation.</span>
+                        </label>
+                    </div>
+                    <div class="skill-item">
+                        <input type="checkbox" id="skill-7" name="skills" value="Adaptive Thinking">
+                        <label for="skill-7" class="tooltip">Adaptive Thinking
+                            <span class="tooltiptext">students apply learnt knowledge and skills strategically and with flexibility in different or new and evolving contexts.</span>
+                        </label>
+                    </div>
+                    <div class="skill-item">
+                        <input type="checkbox" id="skill-8" name="skills" value="Inventive Thinking">
+                        <label for="skill-8" class="tooltip">Inventive Thinking
+                            <span class="tooltiptext">students frame, investigate and explore issues, generate innovative ideas, and evaluate them to form novel and useful responses.</span>
+                        </label>
+                    </div>
+                    <div class="skill-item">
+                        <input type="checkbox" id="skill-9" name="skills" value="Critical Thinking">
+                        <label for="skill-9" class="tooltip">Critical Thinking
+                            <span class="tooltiptext">students exercise sound reasoning and metacognitive thinking to interpret, and analyse information and evidence, draw conclusion, make decisions, and solve problems.</span>
+                        </label>
+                    </div>
+                </div>
+
+                <label for="evidence" id="evidence-label">I want to students to show me evidence of their learning using</label>
+                <input type="text" id="evidence" placeholder="Enter evidence method">
+
+                <label for="prior-knowledge" id="prior-knowledge-label">My students already know</label>
+                <input type="text" id="prior-knowledge" placeholder="Enter prior knowledge">
+
+                <label for="resources">Use the following resources in the lesson plan(optional):</label>
+                <input type="text" id="resources" value="no additional resources provided for now" placeholder="Enter resources">
+            </div>
+        </div>
+        
+        <div class="button-container">
+            <button id="generate-button">Generate Prompt</button>
+        </div>
+        
+        <!-- Output Section -->
+        <div class="section">
+            <div class="section-title">Generated Prompt</div>
+            <textarea id="output" class="output-textarea" placeholder="Your generated prompt will appear here..."></textarea>
+            <div class="button-container">
+                <button id="copy-button">Copy Prompt</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Flag to track if validation has been triggered
+        let validationTriggered = false;
+
+        // Function to mark empty required fields
+        function markEmptyRequiredFields(emptyFields) {
+            // Reset all labels first
+            const allLabels = document.querySelectorAll('label');
+            allLabels.forEach(label => {
+                label.classList.remove('required-field');
+            });
+            
+            // Field name to label ID mapping
+            const fieldNameToLabelId = {
+                'Role': 'role-label',
+                'Subject': 'subject-label',
+                'Topic': 'topic-label',
+                'Level': 'grade-label',
+                'Class Size': 'class-size-label',
+                'Students Abilities': 'abilities-label',
+                'Lesson Duration': 'duration-label',
+                'Learning Outcomes': 'learning-outcomes-label',
+                'End Abilities': 'end-abilities-label',
+                'Pedagogy': 'pedagogy-label',
+                'Technology Purpose': 'technology-label',
+                'Evidence Method': 'evidence-label',
+                'Prior Knowledge': 'prior-knowledge-label',
+                '21st Century Competencies': 'skills-label'
+            };
+            
+            // Mark empty fields
+            emptyFields.forEach(fieldName => {
+                const labelId = fieldNameToLabelId[fieldName];
+                if (labelId) {
+                    const label = document.getElementById(labelId);
+                    if (label) {
+                        label.classList.add('required-field');
+                    }
+                }
+            });
+        }
+
+        // Function to check if a field is valid
+        function isFieldValid(fieldId) {
+            const element = document.getElementById(fieldId);
+            return element.value.trim() !== '';
+        }
+
+        // Function to check if at least one skill is selected
+        function isSkillsValid() {
+            return document.querySelectorAll('input[name="skills"]:checked').length > 0;
+        }
+
+        // Function to check if at least one pedagogy is selected
+        function isPedagogyValid() {
+            return document.querySelectorAll('input[name="pedagogy"]:checked').length > 0;
+        }
+
+        // Function to check if at least one technology is selected
+        function isTechnologyValid() {
+            return document.querySelectorAll('input[name="technology"]:checked').length > 0;
+        }
+
+        // Function to update field validation visuals when input changes
+        function updateFieldValidation(fieldId, labelId) {
+            const label = document.getElementById(labelId);
+            if (validationTriggered) {
+                if (isFieldValid(fieldId)) {
+                    label.classList.remove('required-field');
+                } else {
+                    label.classList.add('required-field');
+                }
+            }
+        }
+
+        // Function to update skills validation visuals when checkboxes change
+        function updateSkillsValidation() {
+            const skillsLabel = document.getElementById('skills-label');
+            if (validationTriggered) {
+                if (isSkillsValid()) {
+                    skillsLabel.classList.remove('required-field');
+                } else {
+                    skillsLabel.classList.add('required-field');
+                }
+            }
+        }
+
+        // Function to update pedagogy validation visuals when checkboxes change
+        function updatePedagogyValidation() {
+            const pedagogyLabel = document.getElementById('pedagogy-label');
+            if (validationTriggered) {
+                if (isPedagogyValid()) {
+                    pedagogyLabel.classList.remove('required-field');
+                } else {
+                    pedagogyLabel.classList.add('required-field');
+                }
+            }
+        }
+
+        // Function to update technology validation visuals when checkboxes change
+        function updateTechnologyValidation() {
+            const technologyLabel = document.getElementById('technology-label');
+            if (validationTriggered) {
+                if (isTechnologyValid()) {
+                    technologyLabel.classList.remove('required-field');
+                } else {
+                    technologyLabel.classList.add('required-field');
+                }
+            }
+        }
+
+        // Set up input change listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const fieldMap = [
+                { id: 'role', labelId: 'role-label' },
+                { id: 'subject', labelId: 'subject-label' },
+                { id: 'topic', labelId: 'topic-label' },
+                { id: 'grade', labelId: 'grade-label' },
+                { id: 'class-size', labelId: 'class-size-label' },
+                { id: 'abilities', labelId: 'abilities-label' },
+                { id: 'duration', labelId: 'duration-label' },
+                { id: 'learning-outcomes', labelId: 'learning-outcomes-label' },
+                { id: 'end-abilities', labelId: 'end-abilities-label' },
+                { id: 'evidence', labelId: 'evidence-label' },
+                { id: 'prior-knowledge', labelId: 'prior-knowledge-label' }
+            ];
+            
+            // Add input/change listeners to all fields
+            fieldMap.forEach(field => {
+                document.getElementById(field.id).addEventListener('input', function() {
+                    updateFieldValidation(field.id, field.labelId);
+                });
+                
+                if (document.getElementById(field.id).tagName === 'SELECT') {
+                    document.getElementById(field.id).addEventListener('change', function() {
+                        updateFieldValidation(field.id, field.labelId);
+                    });
+                }
+            });
+            
+            // Add change listeners to skill checkboxes
+            const skillCheckboxes = document.querySelectorAll('input[name="skills"]');
+            skillCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateSkillsValidation);
+            });
+            
+            // Add change listeners to pedagogy checkboxes
+            document.querySelectorAll('input[name="pedagogy"]').forEach(checkbox => {
+                checkbox.addEventListener('change', updatePedagogyValidation);
+            });
+            
+            // Add change listeners to technology checkboxes
+            document.querySelectorAll('input[name="technology"]').forEach(checkbox => {
+                checkbox.addEventListener('change', updateTechnologyValidation);
+            });
+        });
+
+        document.getElementById('generate-button').addEventListener('click', function() {
+            // Check if required fields are filled
+            const requiredFields = [
+                { id: 'role', name: 'Role' },
+                { id: 'subject', name: 'Subject' },
+                { id: 'topic', name: 'Topic' },
+                { id: 'grade', name: 'Level' },
+                { id: 'class-size', name: 'Class Size' },
+                { id: 'abilities', name: 'Students Abilities' },
+                { id: 'duration', name: 'Lesson Duration' },
+                { id: 'learning-outcomes', name: 'Learning Outcomes' },
+                { id: 'end-abilities', name: 'End Abilities' },
+                { id: 'evidence', name: 'Evidence Method' },
+                { id: 'prior-knowledge', name: 'Prior Knowledge' }
+            ];
+            
+            let emptyFields = [];
+            
+            requiredFields.forEach(field => {
+                const element = document.getElementById(field.id);
+                if (!element.value.trim()) {
+                    emptyFields.push(field.name);
+                }
+            });
+            
+            // Check if at least one skill is selected
+            const skillsChecked = document.querySelectorAll('input[name="skills"]:checked').length > 0;
+            if (!skillsChecked) {
+                emptyFields.push('21st Century Competencies');
+            }
+            
+            // Check if at least one pedagogy is selected
+            const pedagogyChecked = document.querySelectorAll('input[name="pedagogy"]:checked').length > 0;
+            if (!pedagogyChecked) {
+                emptyFields.push('Pedagogy');
+            }
+            
+            // Check if at least one technology is selected
+            const technologyChecked = document.querySelectorAll('input[name="technology"]:checked').length > 0;
+            if (!technologyChecked) {
+                emptyFields.push('Technology Purpose');
+            }
+            
+            // Set validation as triggered
+            validationTriggered = true;
+            
+            // Mark empty fields with red asterisk
+            markEmptyRequiredFields(emptyFields);
+            
+            // Alert the user if there are empty fields
+            if (emptyFields.length > 0) {
+                alert('Please fill in all the fields before generating the prompt.');
+                return;
+            }
+
+            // Task section
+            const role = document.getElementById('role').value;
+            const command = document.getElementById('command').value;
+
+            // Instruction section
+            const instruction = document.getElementById('instruction').value;
+
+            // Context section
+            const subject = document.getElementById('subject').value;
+            const topic = document.getElementById('topic').value;
+            const grade = document.getElementById('grade').value;
+            const classSize = document.getElementById('class-size').value;
+            const abilities = document.getElementById('abilities').value;
+            const duration = document.getElementById('duration').value;
+            const learningOutcomes = document.getElementById('learning-outcomes').value;
+            const endAbilities = document.getElementById('end-abilities').value;
+            
+            // Get selected pedagogy values with descriptions
+            const pedagogyCheckboxes = document.querySelectorAll('input[name="pedagogy"]:checked');
+            let selectedPedagogy = [];
+            pedagogyCheckboxes.forEach(checkbox => {
+                const label = document.querySelector(`label[for="${checkbox.id}"]`);
+                const tooltipText = label.querySelector('.tooltiptext').textContent;
+                selectedPedagogy.push(`${checkbox.value}, meaning ${tooltipText}`);
+            });
+            const pedagogy = selectedPedagogy.join('; ');
+            
+            // Get selected technology values with descriptions
+            const technologyCheckboxes = document.querySelectorAll('input[name="technology"]:checked');
+            let selectedTechnology = [];
+            technologyCheckboxes.forEach(checkbox => {
+                const label = document.querySelector(`label[for="${checkbox.id}"]`);
+                const tooltipText = label.querySelector('.tooltiptext').textContent;
+                selectedTechnology.push(`${checkbox.value}, meaning ${tooltipText}`);
+            });
+            const technology = selectedTechnology.join('; ');
+            
+            // Get selected 21st century skills with descriptions
+            const skillCheckboxes = document.querySelectorAll('input[name="skills"]:checked');
+            let selectedSkills = [];
+            skillCheckboxes.forEach(checkbox => {
+                const label = document.querySelector(`label[for="${checkbox.id}"]`);
+                const tooltipText = label.querySelector('.tooltiptext').textContent;
+                selectedSkills.push(`${checkbox.value}, meaning ${tooltipText}`);
+            });
+            const skills = selectedSkills.join('; ');
+            
+            const evidence = document.getElementById('evidence').value;
+            const priorKnowledge = document.getElementById('prior-knowledge').value;
+            const resources = document.getElementById('resources').value;
+
+            // Concatenate everything
+            let prompt = `You must act as an expert teacher teaching in ${role}. \n${command} ${instruction}\n\nThe subject is ${subject}. \nThe topic is ${topic}. \nMy students are in ${grade}. \nMy class size is ${classSize}. \nMy students abilities are ${abilities}. \nDuration of my lesson is ${duration}. \nLearning outcomes for the lesson: ${learningOutcomes}. \nAt the end of the lesson, students will be able to ${endAbilities}. \nUse the following pedagogy to design the lesson: ${pedagogy}. \nIntegrate technology where necessary and meaningfully to ${technology}. \nIntegrate the acquisition of the following 21st-century skills: ${skills}. \nI want to students to show me evidence of their learning using ${evidence}. \nMy students already know ${priorKnowledge}. \nUse the following resources in your lesson plan(optional): ${resources}`;
+
+            // Display the result
+            document.getElementById('output').value = prompt;
+        });
+
+        document.getElementById('copy-button').addEventListener('click', function() {
+            const output = document.getElementById('output');
+            output.select();
+            document.execCommand('copy');
+            alert('Prompt copied to clipboard!');
+        });
+    </script>
+</body>
+</html>
